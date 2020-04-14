@@ -169,6 +169,7 @@ void VSlamFilter::captureNewFrame(cv::Mat newFrame, double time_stamp) {
 	}
 	
 	old_ts = time_stamp;
+    
 	captureNewFrame(newFrame);
 }
 
@@ -602,6 +603,7 @@ void VSlamFilter::findNewFeatures(int num) {
     for (int i = 0; i < features.size(); i++) {
 	cv::Point2f newFeature = cv::Point2f(features[i].x, features[i].y);
         this->addFeature(newFeature);
+        std::cout<<"add hua kya???"<<std::endl;
     }
     
 	ROS_DEBUG("Found %d Feature[s]", features.size());

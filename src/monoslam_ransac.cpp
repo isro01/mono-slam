@@ -82,7 +82,7 @@ public:
 	  v_speed_ = w_speed_ = 100;
   	poses.header.frame_id = "/world"; 
     image_pub_ = it_.advertise("/monoslam/imgproc", 1);
-    image_sub_ = it_.subscribe("/camera/image_raw", 1, &ImageConverter::imageCb, this);
+    image_sub_ = it_.subscribe("image_raw", 1, &ImageConverter::imageCb, this);
 
     odom_subscriber = nh_.subscribe("/pose", 1, &ImageConverter::odom_callback, this);
 
@@ -122,7 +122,7 @@ public:
 
   void imageCb(const sensor_msgs::ImageConstPtr& msg)
   {
-	//std::cout << "New Frame Caputerd" << endl;
+	std::cout << "New Frame Caputerd" << endl;
     cv_bridge::CvImagePtr cv_ptr;
     try
     {
@@ -131,9 +131,10 @@ public:
     catch (cv_bridge::Exception& e)
     {
       ROS_ERROR("cv_bridge exception: %s", e.what());
+	  
       return;
     }
-    
+    // std::cout<<"caught"<<std::endl;
 	Mat frame;
 	int scale = 1;
 	cv::resize(cv_ptr->image,cv_ptr->image,cv::Size(cv_ptr->image.size().width/scale, cv_ptr->image.size().height/scale));
@@ -141,9 +142,8 @@ public:
 	if (first) {
 
 		first = 0;
-
+		//std::cout<<"ek baar run huaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"<<std::endl;
 		slam.captureNewFrame(cv_ptr->image);
-
 
     	slam.findNewFeatures();
 
@@ -152,10 +152,15 @@ public:
 		slam.captureNewFrame(cv_ptr->image, msg->header.stamp.toSec());
 
 
-
 		slam.predict();
 		slam.update();
 		
+		std::cout<<(cv_ptr->image).size();
+
+		if((cv_ptr->image).empty()) {
+
+			std::cout<<"kuch nahi ho raha hai"<<std::endl;
+		}
 		poses.poses.push_back(slam.getCameraPose());
 		camera_poses_pub.publish(slam.getCameraPath());
 
